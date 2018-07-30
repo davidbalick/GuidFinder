@@ -1,0 +1,50 @@
+﻿<Window x:Class="GuidFinder.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GuidFinder"
+        mc:Ignorable="d"
+        Title="Guid Finder" Height="650" Width="700"
+        FontSize="16">
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition />
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <TextBlock Margin="6" Grid.Column="0">Connection:</TextBlock>
+            <ComboBox Grid.Column="1" ItemsSource="{Binding ConnectionNames}" 
+                      SelectedValue="{Binding ConnectionName}"  Margin="6"/>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition />
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Margin="6" Grid.Column="0">Guid:</TextBlock>
+            <TextBox Grid.Column="1" Text="{Binding GuidString, UpdateSourceTrigger=PropertyChanged}"  Margin="6"/>
+            <Button Content="Look" Grid.Column="2" Command="{Binding LookCommand}" Padding="6"/>
+        </Grid>
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Findings}" IsReadOnly="True" Margin="6" />
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="350"/>
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0" BorderBrush="Black" BorderThickness="1">
+                <TextBlock TextWrapping="Wrap" Text="{Binding Status}" FontSize="10"/>
+            </Border>
+            <Border Grid.Column="1" BorderBrush="Black" BorderThickness="1">
+                <ProgressBar Value="{Binding StatusPercent}" />
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
