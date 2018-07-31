@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using WellNet.Sql;
 using WellNet.Utils;
 
@@ -28,6 +29,27 @@ namespace GuidFinder
                     return;
                 _status = value;
                 OnPropertyChanged("Status");
+            }
+        }
+
+        private TimeSpan _elapsedTimeSpan;
+        private TimeSpan ElapsedTimeSpan
+        {
+            get { return _elapsedTimeSpan; }
+            set
+            {
+                _elapsedTimeSpan = value;
+                ElapsedString = UiLibrary.TimeElapsed(_elapsedTimeSpan, false);
+            }
+        }
+        private string _elapsedString;
+        public string ElapsedString
+        {
+            get { return _elapsedString; }
+            set
+            {
+                _elapsedString = value;
+                OnPropertyChanged("ElapsedString");
             }
         }
 
@@ -81,6 +103,7 @@ namespace GuidFinder
 
         public RelayCommand LookCommand { get; set; }
         private BackgroundWorker _bgWorker;
+        private Timer _elapsedTimer;
 
         public ViewModel()
         {
@@ -90,10 +113,18 @@ namespace GuidFinder
             _bgWorker.ProgressChanged += _bgWorker_ProgressChanged;
             _bgWorker.DoWork += _bgWorker_DoWork;
             _bgWorker.RunWorkerCompleted += _bgWorker_RunWorkerCompleted;
+            _elapsedTimer = new Timer { Interval = 1000 };
+            _elapsedTimer.Elapsed += _elapsedTimer_Elapsed;
+        }
+
+        private void _elapsedTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            ElapsedTimeSpan = ElapsedTimeSpan.Add(new TimeSpan(0, 0, 1));
         }
 
         private void _bgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            _elapsedTimer.Stop();
             if (e.Error != null)
             {
                 Status = e.Error.Message;
@@ -156,6 +187,8 @@ namespace GuidFinder
             result.Columns.Add("Table", typeof(string));
             result.Columns.Add("Column", typeof(string));
             Findings = result.DefaultView;
+            ElapsedTimeSpan = new TimeSpan(0);
+            _elapsedTimer.Start();
             _bgWorker.RunWorkerAsync();
         }
 

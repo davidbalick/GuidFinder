@@ -34,16 +34,20 @@
             <Button Content="Look" Grid.Column="2" Command="{Binding LookCommand}" Padding="6"/>
         </Grid>
         <DataGrid Grid.Row="2" ItemsSource="{Binding Findings}" IsReadOnly="True" Margin="6" />
-        <Grid Grid.Row="3">
+        <Grid Grid.Row="3" Margin="6,0,6,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="350"/>
-                <ColumnDefinition />
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
             <Border Grid.Column="0" BorderBrush="Black" BorderThickness="1">
-                <TextBlock TextWrapping="Wrap" Text="{Binding Status}" FontSize="10"/>
+                <TextBlock TextWrapping="Wrap" Text="{Binding Status}" FontSize="10" Padding="6,0,0,0"/>
             </Border>
             <Border Grid.Column="1" BorderBrush="Black" BorderThickness="1">
-                <ProgressBar Value="{Binding StatusPercent}" />
+                <TextBlock TextWrapping="Wrap" Text="{Binding ElapsedString}" FontSize="10" Padding="6,0,0,0"/>
+            </Border>
+            <Border Grid.Column="2" BorderBrush="Black" BorderThickness="1">
+                <ProgressBar Value="{Binding StatusPercent}" Height="16" />
             </Border>
         </Grid>
     </Grid>
