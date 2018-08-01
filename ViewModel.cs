@@ -1,11 +1,8 @@
 ﻿using GuidFinder.Properties;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Timers;
 using WellNet.Sql;
 using WellNet.Utils;
@@ -17,6 +14,7 @@ namespace GuidFinder
         private ConnectionManager _connMgr;
         public event PropertyChangedEventHandler PropertyChanged;
 
+        #region Propertys
         public string[] ConnectionNames { get { return _connMgr.Keys.ToArray(); } }
 
         private string _status;
@@ -29,6 +27,44 @@ namespace GuidFinder
                     return;
                 _status = value;
                 OnPropertyChanged("Status");
+            }
+        }
+
+        private string _currentAction;
+        public string CurrentAction
+        {
+            get { return _currentAction; }
+            set
+            {
+                if (value.Equals(_currentAction))
+                    return;
+                _currentAction = value;
+                IsWaiting = CurrentAction.Equals("Look");
+                OnPropertyChanged("CurrentAction");
+            }
+        }
+
+        private bool _isWaiting;
+        public bool IsWaiting
+        {
+            get { return _isWaiting; }
+            set
+            {
+                _isWaiting = value;
+                OnPropertyChanged("IsWaiting");
+            }
+        }
+
+        private string _filter;
+        public string Filter
+        {
+            get { return _filter; }
+            set
+            {
+                if (value.Equals(_filter))
+                    return;
+                _filter = value;
+                OnPropertyChanged("Filter");
             }
         }
 
@@ -100,6 +136,7 @@ namespace GuidFinder
                 OnPropertyChanged("Findings");
             }
         }
+        #endregion Properties
 
         public RelayCommand LookCommand { get; set; }
         private BackgroundWorker _bgWorker;
@@ -109,12 +146,13 @@ namespace GuidFinder
         {
             _connMgr = ConnectionManager.Create();
             LookCommand = new RelayCommand(LookExecuteMethod, LookCanExecuteMethod);
-            _bgWorker = new BackgroundWorker { WorkerReportsProgress = true };
+            _bgWorker = new BackgroundWorker { WorkerReportsProgress = true, WorkerSupportsCancellation = true };
             _bgWorker.ProgressChanged += _bgWorker_ProgressChanged;
             _bgWorker.DoWork += _bgWorker_DoWork;
             _bgWorker.RunWorkerCompleted += _bgWorker_RunWorkerCompleted;
             _elapsedTimer = new Timer { Interval = 1000 };
             _elapsedTimer.Elapsed += _elapsedTimer_Elapsed;
+            CurrentAction = "Look";
         }
 
         private void _elapsedTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -122,17 +160,32 @@ namespace GuidFinder
             ElapsedTimeSpan = ElapsedTimeSpan.Add(new TimeSpan(0, 0, 1));
         }
 
-        private void _bgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        private bool LookCanExecuteMethod(object arg)
         {
-            _elapsedTimer.Stop();
-            if (e.Error != null)
-            {
-                Status = e.Error.Message;
-                return;
-            }
-            Status = "Completed";
+            return !string.IsNullOrEmpty(ConnectionName) && !string.IsNullOrEmpty(GuidString);
         }
 
+        private void LookExecuteMethod(object obj)
+        {
+            if (_bgWorker.IsBusy)
+            {
+                _bgWorker.CancelAsync();
+            }
+            else
+            {
+                CurrentAction = "Cancel";
+                Findings = null;
+                var result = new DataTable();
+                result.Columns.Add("Table", typeof(string));
+                result.Columns.Add("Column", typeof(string));
+                Findings = result.DefaultView;
+                ElapsedTimeSpan = new TimeSpan(0);
+                _elapsedTimer.Start();
+                _bgWorker.RunWorkerAsync();
+            }
+        }
+
+        #region BgWorker
         private void _bgWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             Guid guid;
@@ -147,8 +200,12 @@ namespace GuidFinder
             var rowNum = 0;
             foreach (DataRow dataRow in columnListDataTable.Rows)
             {
+                if (_bgWorker.CancellationPending)
+                    throw new Exception("Cancelled");
                 var tableName = dataRow["TableName"].ToString();
                 var columnName = dataRow["ColumnName"].ToString();
+                if (!string.IsNullOrEmpty(Filter) && !tableName.Contains(Filter))
+                    continue;
 
                 var progressInfo = new ProgressInfo
                 {
@@ -180,22 +237,18 @@ namespace GuidFinder
             }
         }
 
-        private void LookExecuteMethod(object obj)
+        private void _bgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            Findings = null;
-            var result = new DataTable();
-            result.Columns.Add("Table", typeof(string));
-            result.Columns.Add("Column", typeof(string));
-            Findings = result.DefaultView;
-            ElapsedTimeSpan = new TimeSpan(0);
-            _elapsedTimer.Start();
-            _bgWorker.RunWorkerAsync();
+            CurrentAction = "Look";
+            _elapsedTimer.Stop();
+            if (e.Error != null)
+            {
+                Status = e.Error.Message;
+                return;
+            }
+            Status = "Completed";
         }
-
-        private bool LookCanExecuteMethod(object arg)
-        {
-            return !string.IsNullOrEmpty(ConnectionName) && !string.IsNullOrEmpty(GuidString);
-        }
+        #endregion BgWorker
 
         private void OnPropertyChanged(string propName)
         {

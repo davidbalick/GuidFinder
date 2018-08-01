@@ -17,11 +17,15 @@
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
-                <ColumnDefinition />
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="5*"/>
             </Grid.ColumnDefinitions>
             <TextBlock Margin="6" Grid.Column="0">Connection:</TextBlock>
             <ComboBox Grid.Column="1" ItemsSource="{Binding ConnectionNames}" 
-                      SelectedValue="{Binding ConnectionName}"  Margin="6"/>
+                      SelectedValue="{Binding ConnectionName}"  Margin="6" IsEnabled="{Binding IsWaiting}"/>
+            <TextBlock Margin="6" Grid.Column="2">Table Filter:</TextBlock>
+            <TextBox Margin="6" Grid.Column="3" Text="{Binding Filter}" IsEnabled="{Binding IsWaiting}"/>
         </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -30,8 +34,8 @@
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             <TextBlock Margin="6" Grid.Column="0">Guid:</TextBlock>
-            <TextBox Grid.Column="1" Text="{Binding GuidString, UpdateSourceTrigger=PropertyChanged}"  Margin="6"/>
-            <Button Content="Look" Grid.Column="2" Command="{Binding LookCommand}" Padding="6"/>
+            <TextBox Grid.Column="1" Text="{Binding GuidString, UpdateSourceTrigger=PropertyChanged}"  Margin="6" IsEnabled="{Binding IsWaiting}"/>
+            <Button Content="{Binding CurrentAction}" Grid.Column="2" Command="{Binding LookCommand}" Padding="6"/>
         </Grid>
         <DataGrid Grid.Row="2" ItemsSource="{Binding Findings}" IsReadOnly="True" Margin="6" />
         <Grid Grid.Row="3" Margin="6,0,6,0">
@@ -40,13 +44,13 @@
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
-            <Border Grid.Column="0" BorderBrush="Black" BorderThickness="1">
+            <Border Grid.Column="0" BorderBrush="LightBlue" BorderThickness="1">
                 <TextBlock TextWrapping="Wrap" Text="{Binding Status}" FontSize="10" Padding="6,0,0,0"/>
             </Border>
-            <Border Grid.Column="1" BorderBrush="Black" BorderThickness="1">
+            <Border Grid.Column="1" BorderBrush="LightBlue" BorderThickness="1">
                 <TextBlock TextWrapping="Wrap" Text="{Binding ElapsedString}" FontSize="10" Padding="6,0,0,0"/>
             </Border>
-            <Border Grid.Column="2" BorderBrush="Black" BorderThickness="1">
+            <Border Grid.Column="2" BorderBrush="LightBlue" BorderThickness="1">
                 <ProgressBar Value="{Binding StatusPercent}" Height="16" />
             </Border>
         </Grid>

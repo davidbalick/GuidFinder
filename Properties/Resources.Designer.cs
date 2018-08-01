@@ -85,7 +85,7 @@ namespace GuidFinder.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to select top 1 @ColumnName from @TableName where @ColumnName = @Guid.
+        ///   Looks up a localized string similar to select top 1 1 @ColumnName from @TableName where @ColumnName = @Guid.
         /// </summary>
         internal static string LookForGuidSql {
             get {
