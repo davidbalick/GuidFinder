@@ -17,15 +17,19 @@
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
             <TextBlock Margin="6" Grid.Column="0">Connection:</TextBlock>
             <ComboBox Grid.Column="1" ItemsSource="{Binding ConnectionNames}" 
                       SelectedValue="{Binding ConnectionName}"  Margin="6" IsEnabled="{Binding IsWaiting}"/>
             <TextBlock Margin="6" Grid.Column="2">Table Filter:</TextBlock>
-            <TextBox Margin="6" Grid.Column="3" Text="{Binding Filter}" IsEnabled="{Binding IsWaiting}"/>
+            <TextBox Margin="6" Grid.Column="3" Text="{Binding TableFilter}" IsEnabled="{Binding IsWaiting}"/>
+            <TextBlock Margin="6" Grid.Column="4">Column Filter:</TextBlock>
+            <TextBox Margin="6" Grid.Column="5" Text="{Binding ColumnFilter}" IsEnabled="{Binding IsWaiting}"/>
         </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>

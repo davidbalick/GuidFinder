@@ -55,16 +55,29 @@ namespace GuidFinder
             }
         }
 
-        private string _filter;
-        public string Filter
+        private string _tableFilter;
+        public string TableFilter
         {
-            get { return _filter; }
+            get { return _tableFilter; }
             set
             {
-                if (value.Equals(_filter))
+                if (value.Equals(_tableFilter))
                     return;
-                _filter = value;
-                OnPropertyChanged("Filter");
+                _tableFilter = value;
+                OnPropertyChanged("TableFilter");
+            }
+        }
+
+        private string _columnFilter;
+        public string ColumnFilter
+        {
+            get { return _columnFilter; }
+            set
+            {
+                if (value.Equals(_columnFilter))
+                    return;
+                _columnFilter = value;
+                OnPropertyChanged("ColumnFilter");
             }
         }
 
@@ -204,7 +217,9 @@ namespace GuidFinder
                     throw new Exception("Cancelled");
                 var tableName = dataRow["TableName"].ToString();
                 var columnName = dataRow["ColumnName"].ToString();
-                if (!string.IsNullOrEmpty(Filter) && !tableName.Contains(Filter))
+                if (!string.IsNullOrEmpty(TableFilter) && !tableName.ToUpper().Contains(TableFilter.ToUpper()))
+                    continue;
+                if (!string.IsNullOrEmpty(ColumnFilter) && !columnName.ToUpper().Contains(ColumnFilter.ToUpper()))
                     continue;
 
                 var progressInfo = new ProgressInfo
